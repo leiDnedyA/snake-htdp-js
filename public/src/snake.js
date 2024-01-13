@@ -10,7 +10,7 @@ import {
   posn,
   posnX,
   posnY,
-} from "./js-build/modules/js-wrapper.rkt.js";
+} from "./htdp/modules/js-wrapper.rkt.js";
 
 
 /*
@@ -44,4 +44,3 @@ const GRID_ROWS = 30;
 const GRID_COLS = 30;
 
 const SEG_IMAGE = circle(CELL_SIZE / 2, "solid", SNAKE_COLOR);
-
