@@ -156,5 +156,41 @@ function newSeg(seg, dir){
   }
 }
 
+function snakeSlither(snake) {
+  return new Snake(
+    [newSeg(snake.segs[0], snake.dir)] + nukeLast(snake.segs),
+    snake.dir
+  );
+}
+
+function nukeLast(segList) {
+  if (segList.length <= 1) {
+    return [];
+  } else {
+    return [segList] + nukeLast(segList.slice(1));
+  }
+}
 
 
+/*
+ * ------------------------------------------------
+ * COLLISION DETECTION
+ *
+ * */
+
+function isEating(w) {
+  return posnEquals(w.snake.segs[0], world.food);
+}
+
+function posnEquals(a, b) {
+  return a.x === b.x && a.y === b.y;
+}
+
+function hasSelfCollision(w) {
+  return isSegCollision(world.snake.segs[0], world.snake.segs.slice(1));
+}
+
+function isSegCollision(seg, listOfSegs) {
+  if (listOfSegs.length === 0) return false;
+  return posnEquals(seg, listOfSegs[0]) || isSegCollision(seg, listOfSegs.slice(1));
+}
