@@ -8,11 +8,15 @@ import {
   placeImage,
   stopWhen,
   circle,
+  rectangle,
   posn,
   posnX,
   posnY,
 } from "./htdp/modules/js-wrapper.rkt.js";
 
+function randRange(max) {
+  return Math.floor(Math.random() * max);
+}
 
 /*
  * DATA DEFINITIONS / CONSTRUCTORS
@@ -49,7 +53,7 @@ const GRID_COLS = 30;
 
 const SEG_IMAGE = circle(CELL_SIZE / 2, "solid", SNAKE_COLOR);
 const FOOD_IMAGE = circle(CELL_SIZE / 2, "solid", FOOD_COLOR);
-const BACKGROUND = emptyScene(GRID_COLS * CELL_SIZE, GRID_ROWS * CELL_SIZE);
+const BACKGROUND = emptyScene(GRID_COLS * CELL_SIZE, GRID_ROWS * CELL_SIZE, 'wheat');
 
 const INITIAL_WORLD = new World(
   new Snake([new Posn(2, 6)], 'right'),
@@ -104,15 +108,16 @@ const world2 = new World(snake2, food1);
  * */
 
 function worldToScene(world){
-  return snakePlusImage(world.snake, foodPlusImage(world.food), BACKGROUND)
+  return snakePlusImage(world.snake, foodPlusImage(world.food, BACKGROUND))
 }
 
 function placeImageAtCell(img1, gridX, gridY, img2){
+  console.log('made it here')
   return placeImage(
     img1,
     CELL_SIZE * 1.5,
     CELL_SIZE * (GRID_ROWS * 3.5),
-    BACKGROUND
+    img2
   );
 }
 
@@ -125,7 +130,8 @@ function segsPlusImage(segsList, img){
   return placeImageAtCell(
     SEG_IMAGE,
     segsList[0].x, segsList[0].y,
-    segsList.slice(1)
+    segsList.slice(1),
+    img
   );
 }
 
@@ -158,7 +164,7 @@ function newSeg(seg, dir){
 
 function snakeSlither(snake) {
   return new Snake(
-    [newSeg(snake.segs[0], snake.dir)] + nukeLast(snake.segs),
+    [newSeg(snake.segs[0], snake.dir)].concat(nukeLast(snake.segs)),
     snake.dir
   );
 }
@@ -179,7 +185,7 @@ function nukeLast(segList) {
  * */
 
 function isEating(w) {
-  return posnEquals(w.snake.segs[0], world.food);
+  return posnEquals(w.snake.segs[0], w.food);
 }
 
 function posnEquals(a, b) {
@@ -187,10 +193,54 @@ function posnEquals(a, b) {
 }
 
 function hasSelfCollision(w) {
-  return isSegCollision(world.snake.segs[0], world.snake.segs.slice(1));
+  return isSegCollision(w.snake.segs[0], w.snake.segs.slice(1));
 }
 
 function isSegCollision(seg, listOfSegs) {
   if (listOfSegs.length === 0) return false;
   return posnEquals(seg, listOfSegs[0]) || isSegCollision(seg, listOfSegs.slice(1));
 }
+
+function hasWorldCollision(w) {
+  return !(isInBounds(w.snake.segs[0]));
+}
+
+function isInBounds(p) {
+  return (p.x >= 0) && (p.x < GRID_COLS) && (p.y >= 0) && (p.y < GRID_ROWS);
+}
+
+
+/*
+ * ------------------------------------------------
+ * GAME LOGIC
+ *
+ * */
+
+function nextWorld(w) {
+  if (hasWorldCollision(w) || hasSelfCollision(w)) return INITIAL_WORLD;
+  if (isEating(w)) {
+    return new World(
+      snakeGrow(w.snake),
+      new Posn(randRange(GRID_COLS), randRange(GRID_ROWS))
+    )
+  }
+  return new World(
+    snakeSlither(w.snake),
+    w.food
+  );
+}
+
+function keyHandler(w, k) {
+  if (k === 'up' || k === 'down' || k === 'left' || k === 'right') {
+    return new World(new Snake(w.snake.segs, k), w.food);
+  }
+  if (k === 'n') return INITIAL_WORLD;
+  return w;
+}
+
+bigBang(
+  INITIAL_WORLD,
+  toDraw(worldToScene),
+  onTick(nextWorld, TICK_PERIOD),
+  onKey(keyHandler)
+)
