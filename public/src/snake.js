@@ -112,11 +112,10 @@ function worldToScene(world){
 }
 
 function placeImageAtCell(img1, gridX, gridY, img2){
-  console.log('made it here')
   return placeImage(
     img1,
-    CELL_SIZE * 1.5,
-    CELL_SIZE * (GRID_ROWS * 3.5),
+    CELL_SIZE * (gridX + 1.5),
+    CELL_SIZE * (gridY + 3.5),
     img2
   );
 }
@@ -130,8 +129,10 @@ function segsPlusImage(segsList, img){
   return placeImageAtCell(
     SEG_IMAGE,
     segsList[0].x, segsList[0].y,
-    segsList.slice(1),
-    img
+    segsPlusImage(
+      segsList.slice(1),
+      img
+    )
   );
 }
 
