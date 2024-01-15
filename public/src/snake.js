@@ -153,9 +153,9 @@ function snakeGrow(snake){
 
 function newSeg(seg, dir){
   if (dir === 'up') {
-    return new Posn(seg.x, seg.y + 1);
-  } else if (dir === 'down') {
     return new Posn(seg.x, seg.y - 1);
+  } else if (dir === 'down') {
+    return new Posn(seg.x, seg.y + 1);
   } else if (dir === 'left') {
     return new Posn(seg.x - 1, seg.y);
   } else {
