@@ -148,7 +148,7 @@ function foodPlusImage(food, img){
  * */
 
 function snakeGrow(snake){
-  return new Snake([newSeg(snake.segs[0], snake.dir)] + snake.segs, snake.dir);
+  return new Snake([newSeg(snake.segs[0], snake.dir)].concat(snake.segs), snake.dir);
 }
 
 function newSeg(seg, dir){
@@ -171,10 +171,11 @@ function snakeSlither(snake) {
 }
 
 function nukeLast(segList) {
+  console.log(segList.length)
   if (segList.length <= 1) {
     return [];
   } else {
-    return [segList] + nukeLast(segList.slice(1));
+    return [segList[0]].concat(nukeLast(segList.slice(1)));
   }
 }
 
@@ -244,4 +245,4 @@ bigBang(
   toDraw(worldToScene),
   onTick(nextWorld, TICK_PERIOD),
   onKey(keyHandler)
-)
+);
